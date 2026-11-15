@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genius Study Robot</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#141e30,#243b55);
+  color: white;
+}
+header {
+  text-align: center;
+  padding: 22px 10px;
+  background: #6c35d9;
+}
+header h1 {
+  margin: 5px;
+  font-size: 27px;
+}
+header p {
+  margin: 5px;
+}
+.container {
+  max-width: 650px;
+  margin: 20px auto;
+  padding: 15px;
+}
+.subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.subjects button {
+  background: #ffffff;
+  color: #392078;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 14px;
+  font-weight: bold;
+}
+#chat {
+  height: 390px;
+  overflow-y: auto;
+  background: #ffffff;
+  color: #222;
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 18px;
+}
+.msg {
+  padding: 12px;
+  border-radius: 12px;
+  margin: 10px 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.bot {
+  background: #eee7ff;
+  margin-right: 25px;
+}
+.user {
+  background: #d8f5e3;
+  margin-left: 25px;
+  text-align: right;
+}
+.input-area {
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+}
+input {
+  min-width: 0;
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+}
+.send {
+  background: #ffb703;
+  border: none;
+  padding: 12px 17px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+.voice {
+  background: #15b88a;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+}
+.clear {
+  display: block;
+  margin: 12px auto;
+  background: #e64c68;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+}
+footer {
+  text-align: center;
+  padding: 15px;
+  color: #ddd;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🤖 Genius Study Robot</h1>
+  <p>पढ़ाई का सबसे प्यारा दोस्त 📚</p>
+</header>
+
+<div class="container">
+
+  <h3>अपना विषय चुनो 👇</h3>
+
+  <div class="subjects">
+    <button onclick="askSubject('गणित')">🧮 गणित</button>
+    <button onclick="askSubject('विज्ञान')">🔬 विज्ञान</button>
+    <button onclick="askSubject('हिंदी')">📖 हिंदी</button>
+    <button onclick="askSubject('अंग्रेजी')">🔤 अंग्रेजी</button>
+    <button onclick="askSubject('इतिहास')">🏛️ इतिहास</button>
+    <button onclick="askSubject('सामान्य ज्ञान')">🌍 GK</button>
+  </div>
+
+  <div id="chat">
+    <div class="msg bot">
+      नमस्ते दोस्त! 👋 मैं Genius Study Robot हूँ।
+
+      मुझसे पढ़ाई के सवाल पूछो।
+      मैं आसान भाषा में जवाब देने की कोशिश करूँगा।
+
+      बताओ, आज क्या पढ़ना है? 😊
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input id="question"
+      placeholder="अपना सवाल यहाँ लिखो..."
+      onkeydown="if(event.key==='Enter') sendMessage()">
+
+    <button class="voice" onclick="speakQuestion()">🎤</button>
+    <button class="send" onclick="sendMessage()">भेजो</button>
+  </div>
+
+  <button class="clear" onclick="clearChat()">🗑️ चैट साफ करो</button>
+
+</div>
+
+<footer>
+  बनाया गया प्यार से ❤️ Genius Study Robot
+</footer>
+
+<script>
+
+const answers = [
+  {
+    keys: ["भारत की राजधानी"],
+    answer: "भारत की राजधानी नई दिल्ली है।"
+  },
+  {
+    keys: ["सूर्य क्या है", "सूरज क्या है"],
+    answer: "सूर्य एक तारा है। यह हमें प्रकाश और गर्मी देता है।"
+  },
+  {
+    keys: ["पानी का सूत्र", "जल का सूत्र"],
+    answer: "पानी का रासायनिक सूत्र H₂O है। इसमें हाइड्रोजन और ऑक्सीजन होते हैं।"
+  },
+  {
+    keys: ["2+2", "दो जमा दो"],
+    answer: "2 + 2 = 4 😊"
+  },
+  {
+    keys: ["भारत का राष्ट्रीय पशु"],
+    answer: "भारत का राष्ट्रीय पशु बाघ है।"
+  },
+  {
+    keys: ["भारत का राष्ट्रीय पक्षी"],
+    answer: "भारत का राष्ट्रीय पक्षी मोर है।"
+  },
+  {
+    keys: ["पौधे भोजन कैसे बनाते"],
+    answer: "पौधे प्रकाश संश्लेषण की प्रक्रिया से अपना भोजन बनाते हैं।"
+  },
+  {
+    keys: ["महात्मा गांधी"],
+    answer: "महात्मा गांधी भारत के स्वतंत्रता आंदोलन के प्रमुख नेता थे। उन्हें राष्ट्रपिता भी कहा जाता है।"
+  },
+  {
+    keys: ["गणित क्या है"],
+    answer: "गणित संख्याओं, आकृतियों, माप और गणना का अध्ययन है।"
+  },
+  {
+    keys: ["हिंदी वर्णमाला"],
+    answer: "हिंदी वर्णमाला में स्वर और व्यंजन होते हैं।"
+  },
+  {
+    keys: ["अंग्रेजी में नमस्ते"],
+    answer: "नमस्ते को अंग्रेजी में Hello कहते हैं।"
+  }
+];
+
+function addMessage(text, type) {
+  const chat = document.getElementById("chat");
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function getAnswer(question) {
+  const q = question.toLowerCase().trim();
+
+  for (let item of answers) {
+    for (let key of item.keys) {
+      if (q.includes(key.toLowerCase())) {
+        return item.answer;
+      }
+    }
+  }
+
+  // आसान गणित की गणना
+  if (/^[0-9+\-*/().\s]+$/.test(q) && /[0-9]/.test(q)) {
+    try {
+      const result = Function('"use strict"; return (' + q + ')')();
+      if (Number.isFinite(result)) {
+        return "इस सवाल का जवाब है: " + result;
+      }
+    } catch(e) {}
+  }
+
+  return "अच्छा सवाल है! 😊 इस सवाल का सही और पूरा जवाब देने के लिए मुझे AI ज्ञान सेवा से जोड़ना होगा। अभी मेरे पास सीमित सवालों के जवाब हैं। तुम गणित, विज्ञान, हिंदी या GK का कोई दूसरा सवाल पूछ सकते हो।";
+}
+
+function sendMessage() {
+  const input = document.getElementById("question");
+  const q = input.value.trim();
+
+  if (!q) return;
+
+  addMessage("तुम: " + q, "user");
+  input.value = "";
+
+  const answer = getAnswer(q);
+
+  setTimeout(() => {
+    addMessage("🤖 रोबोट: " + answer, "bot");
+  }, 300);
+}
+
+function askSubject(subject) {
+  document.getElementById("question").value =
+    subject + " का एक आसान सवाल बताओ";
+  sendMessage();
+}
+
+function clearChat() {
+  document.getElementById("chat").innerHTML =
+    '<div class="msg bot">नमस्ते दोस्त! 😊 अपना सवाल पूछो।</div>';
+}
+
+function speakQuestion() {
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("इस ब्राउज़र में बोलकर सवाल पूछने की सुविधा उपलब्ध नहीं है।");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "hi-IN";
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    document.getElementById("question").value =
+      event.results[0][0].transcript;
+  };
+}
+
+</script>
+
+</body>
+  </html>
+  
